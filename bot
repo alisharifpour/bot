@@ -1,0 +1,479 @@
+import telebot
+from telebot import types
+import logging
+
+# تنظیمات logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# توکن ربات خود را وارد کنید
+TOKEN = '6772508887:AAHvhQ44AMuW4gQUbvZ_fBfRHsQlON6sSB8'
+
+# ایجاد شی ربات
+bot = telebot.TeleBot(TOKEN)
+
+# آیدی گروه مورد نظر خود را وارد کنید
+group_chat_id = '-1002112168767'
+
+# دسته‌بندی پیام‌ها بر اساس وضعیت
+user_data = {}
+
+# سوال جدید
+new_question = "برند خودرو خود را انتخاب کنید."
+
+# گزینه‌های مربوط به برندها
+options_brands = ["آیودی", "آریسان", "آریو", "آلفارومئو", "آمیکو وانت", "اپل"]
+
+
+# گزینه‌های مربوط به مدل‌های آیودی
+options_audi_models = ["Q5", "TT", "سایر مدل های آیودی"]
+
+# گزینه‌های مربوط به تیپ‌های آیودی TT
+options_tt_types = ["کروک", "کوپه", "سایر تیپ های آیودی TT"]
+
+# سال‌های تولید برای مدل‌های مختلف آیودی
+options_q5_years = ["2016"]
+options_tt_years = ["2005", "2006", "2007", "2008", "2009"]
+options_other_audi_years = options_q5_years + options_tt_years
+
+# گزینه‌های مربوط به مدل‌های آریسان
+options_arisan_models = ["وانت", "وانت2"]
+
+# گزینه‌های مربوط به تیپ‌های آریسان وانت
+options_arisan_van_types = ["بنزینی", "دوگانه سوز"]
+
+# سال‌های تولید برای مدل‌های مختلف آریسان
+options_arisan_van2_years = ["1403", "1402", "1401"]
+options_arisan_van_years = ["1394", "1395", "1396", "1397", "1398", "1399"]
+
+# گزینه‌های مربوط به تیپ‌های آریو
+options_ario_models = ["اتوماتیک 1600cc", "دنده ای 1500cc", "دنده ای 1600cc"]
+
+# سال‌های تولید برای مدل‌های مختلف آریو
+options_ario_automatic_1600cc_years = ["1394", "1395", "1396", "1397", "1398", "1400"]
+options_ario_manual_1500cc_years = ["1393", "1394", "1395"]
+options_ario_manual_1600cc_years = options_ario_automatic_1600cc_years
+# گزینه‌های مربوط به مدل‌های آلفارومئو
+options_alfa_models = ["آلفارومئو 4C", "آلفارومئو جولیتا", "آلفارومئو میتو"]
+
+# گزینه‌های مربوط به مدل‌های آلفارومئو
+options_alfa_4c_years = ["2015", "2016"]
+options_alfa_giulia_years = ["2012", "2013", "2014", "2015", "2016", "2017"]
+options_alfa_mito_years = ["2011", "2012", "2013", "2014", "2015"]
+
+# گزینه‌های مربوط به مدل‌های آمیکو وانت
+options_amico_models = ["وانت آمیکو آراز", "وانت آمیکو آسنا"]
+
+# گزینه‌های مربوط به تیپ‌های وانت آمیکو آراز
+options_amico_araz_types = ["وانت آمیکو آراز تک دیفرانسیل", "وانت آمیکو آراز دو دیفرانسیل"]
+
+# گزینه‌های مربوط به تیپ‌های وانت آمیکو آسنا
+options_amico_asna_types = ["وانت آمیکو آسنا بنزینی", "وانت آمیکو آسنا دوگانه سوز"]
+
+# سال‌های تولید برای وانت آمیکو آراز تک دیفرانسیل و دو دیفرانسیل
+options_amico_araz_years = ["1397"]
+
+# سال‌های تولید برای وانت آمیکو آسنا بنزینی
+options_amico_asna_benzin_years = ["1397", "1398", "1399", "1400", "1401", "1402", "1403"]
+# پرسش مدل خودرو برای اپل
+options_opel_models = ["اپل آسترا", "اپل کورسا", "اپل آمگا", "اپل اینسیگنیا", "اپل موکا", "اپل وکترا", "سایر مدل‌های اپل"]
+
+options_opel_astra_sedan_models = ["آسترا سدان جدید", "آسترا سدان قدیم", "سایر تیپ‌های آسترا سدان"]
+
+options_opel_astra_hatchback_models = ["آسترا هاچبک 1400cc", "آسترا هاچبک 1600cc", "سایر تیپ‌های آسترا هاچبک"]
+
+options_opel_corsa_models = ["کورسا اتوماتیک", "کورسا دنده‌ای اتاق جدید", "کورسا دنده‌ای اتاق قدیم", "سایر تیپ‌های کورسا"]
+options_opel_astra_station_years = ["1994", "1995", "1996", "1997"]
+
+options_opel_astra_sedan_new_years = ["1994", "1995", "1996"]
+
+options_opel_astra_sedan_old_years = ["1994", "1995", "1996"]
+
+options_opel_other_astra_sedan_years = ["1994", "1995", "1996"]
+
+options_opel_astra_hatchback_1400cc_years = ["2014", "2015"]
+
+options_opel_astra_hatchback_1600cc_years = ["2014", "2015"]
+
+options_opel_other_astra_hatchback_years = ["2014", "2015"]
+
+options_opel_omega_years = ["1994", "1995", "1996", "1997"]
+
+options_opel_insignia_years = ["2016", "2017"]
+
+options_opel_calibra_years = ["قبل سال 1978", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2024"]
+
+options_opel_corsa_automatic_years = ["1993", "1994", "1995", "1996", "1997", "2013", "2014", "2015"]
+
+options_opel_corsa_manual_new_years = ["1993", "1994", "1995", "1996", "1997", "2013", "2014", "2015"]
+
+options_opel_corsa_manual_old_years = ["1993", "1994", "1995", "1996", "1997", "2013", "2014", "2015"]
+
+options_opel_other_corsa_years = ["1993", "1994", "1995", "1996", "1997", "2013", "2014", "2015"]
+
+options_opel_mokka_years = ["2015", "2016"]
+
+options_opel_vectra_years = ["1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001"]
+
+options_opel_other_years = ["1991", "2017"]
+
+
+
+
+
+
+
+
+# دستور برای شروع مکالمه
+@bot.message_handler(commands=['start'])
+def start(message):
+    user_id = message.from_user.id
+    user_data[user_id] = {
+        'responses': [],
+        'current_question': 0
+    }
+    ask_brand(user_id)
+
+# پرسش برند خودرو
+def ask_brand(user_id):
+    markup = create_keyboard(options_brands)
+    bot.send_message(user_id, new_question, reply_markup=markup)
+
+# پرسش مدل خودرو برای آلفارومئو
+def ask_alfa_model(user_id):
+    markup = create_keyboard(options_alfa_models)
+    bot.send_message(user_id, "مدل مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آلفارومئو 4C
+def ask_production_year_alfa_4c(user_id):
+    markup = create_keyboard(options_alfa_4c_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آلفارومئو جولیتا
+def ask_production_year_alfa_giulia(user_id):
+    markup = create_keyboard(options_alfa_giulia_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آلفارومئو میتو
+def ask_production_year_alfa_mito(user_id):
+    markup = create_keyboard(options_alfa_mito_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش مدل خودرو برای آیودی
+def ask_audi_model(user_id):
+    markup = create_keyboard(options_audi_models)
+    bot.send_message(user_id, "مدل مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش تیپ خودرو برای آیودی TT
+def ask_tt_type(user_id):
+    markup = create_keyboard(options_tt_types)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای Q5
+def ask_production_year_q5(user_id):
+    markup = create_keyboard(options_q5_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای TT
+def ask_production_year_tt(user_id):
+    markup = create_keyboard(options_tt_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای سایر مدل‌های آیودی
+def ask_production_year_other_audi(user_id):
+    markup = create_keyboard(options_other_audi_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش مدل خودرو برای آریسان
+def ask_arisan_model(user_id):
+    markup = create_keyboard(options_arisan_models)
+    bot.send_message(user_id, "مدل مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش تیپ خودرو برای آریسان وانت
+def ask_arisan_van_type(user_id):
+    markup = create_keyboard(options_arisan_van_types)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آریسان وانت2
+def ask_production_year_arisan_van2(user_id):
+    markup = create_keyboard(options_arisan_van2_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آریسان وانت
+def ask_production_year_arisan_van(user_id):
+    markup = create_keyboard(options_arisan_van_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش تیپ خودرو برای آریو
+def ask_ario_model(user_id):
+    markup = create_keyboard(options_ario_models)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آریو اتوماتیک 1600cc
+def ask_production_year_ario_automatic_1600cc(user_id):
+    markup = create_keyboard(options_ario_automatic_1600cc_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آریو دنده ای 1500cc
+def ask_production_year_ario_manual_1500cc(user_id):
+    markup = create_keyboard(options_ario_manual_1500cc_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای آریو دنده ای 1600cc
+def ask_production_year_ario_manual_1600cc(user_id):
+    markup = create_keyboard(options_ario_manual_1600cc_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+    
+    
+    
+    
+    def ask_production_year_alfa_4c(user_id):
+    markup = create_keyboard(options_alfa_4c_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+def ask_production_year_alfa_giulia(user_id):
+    markup = create_keyboard(options_alfa_giulia_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+def ask_production_year_alfa_mito(user_id):
+    markup = create_keyboard(options_alfa_mito_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+    
+    
+    
+
+# پرسش مدل خودرو برای آمیکو وانت
+def ask_amico_model(user_id):
+    markup = create_keyboard(options_amico_models)
+    bot.send_message(user_id, "مدل مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش تیپ خودرو برای وانت آمیکو آراز
+def ask_amico_araz_type(user_id):
+    markup = create_keyboard(options_amico_araz_types)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای وانت آمیکو آراز تک دیفرانسیل و دو دیفرانسیل
+def ask_production_year_amico_araz(user_id):
+    markup = create_keyboard(options_amico_araz_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش تیپ خودرو برای وانت آمیکو آسنا
+def ask_amico_asna_type(user_id):
+    markup = create_keyboard(options_amico_asna_types)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای وانت آمیکو آسنا بنزینی
+def ask_production_year_amico_asna_benzin(user_id):
+    markup = create_keyboard(options_amico_asna_benzin_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+
+# پرسش مدل خودرو برای اپل
+def ask_opel_model(user_id):
+    markup = create_keyboard(options_opel_models)
+    bot.send_message(user_id, "مدل مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش مدل خودرو برای اپل آسترا سدان
+def ask_opel_astra_sedan_model(user_id):
+    markup = create_keyboard(options_opel_astra_sedan_models)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش مدل خودرو برای اپل آسترا هاچبک
+def ask_opel_astra_hatchback_model(user_id):
+    markup = create_keyboard(options_opel_astra_hatchback_models)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش مدل خودرو برای اپل کورسا
+def ask_opel_corsa_model(user_id):
+    markup = create_keyboard(options_opel_corsa_models)
+    bot.send_message(user_id, "تیپ مورد نظر را انتخاب کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای سایر تیپ‌های اپل آسترا هاچبک
+def ask_production_year_opel_astra_hatchback_other(user_id):
+    markup = create_keyboard(options_opel_other_astra_hatchback_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل آمگا
+def ask_production_year_opel_omega(user_id):
+    markup = create_keyboard(options_opel_omega_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل اینسیگنیا
+def ask_production_year_opel_insignia(user_id):
+    markup = create_keyboard(options_opel_insignia_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل کالیبرا
+def ask_production_year_opel_calibra(user_id):
+    markup = create_keyboard(options_opel_calibra_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل کورسا اتوماتیک
+def ask_production_year_opel_corsa_automatic(user_id):
+    markup = create_keyboard(options_opel_corsa_automatic_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل کورسا دنده‌ای اتاق جدید
+def ask_production_year_opel_corsa_manual_new(user_id):
+    markup = create_keyboard(options_opel_corsa_manual_new_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل کورسا دنده‌ای اتاق قدیم
+def ask_production_year_opel_corsa_manual_old(user_id):
+    markup = create_keyboard(options_opel_corsa_manual_old_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای سایر تیپ‌های اپل کورسا
+def ask_production_year_opel_corsa_other(user_id):
+    markup = create_keyboard(options_opel_other_corsa_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل موکا
+def ask_production_year_opel_mokka(user_id):
+    markup = create_keyboard(options_opel_mokka_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای اپل وکترا
+def ask_production_year_opel_vectra(user_id):
+    markup = create_keyboard(options_opel_vectra_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+# پرسش سال تولید برای سایر مدل‌های اپل
+def ask_production_year_opel_other(user_id):
+    markup = create_keyboard(options_opel_other_years)
+    bot.send_message(user_id, "سال تولید را وارد کنید:", reply_markup=markup)
+
+
+
+
+
+# مدیریت پیام‌ها با توجه به مدل‌های اپل
+@bot.message_handler(func=lambda message: message.from_user.id in user_data)
+def handle_message(message):
+    user_id = message.from_user.id
+    user_state = user_data[user_id]
+
+    response = message.text
+    current_question = user_state['current_question']
+
+    if current_question == 0:
+        user_state['brand'] = response
+        if response == "آیودی":
+            ask_audi_model(user_id)
+        elif response == "آریسان":
+            ask_arisan_model(user_id)
+        elif response == "آریو":
+            ask_ario_model(user_id)
+        elif user_state['brand'] == "آلفارومئو":
+        user_state['model'] = response
+        if response == "آلفارومئو 4C":
+            ask_production_year_alfa_4c(user_id)
+        elif response == "آلفارومئو جولیتا":
+            ask_production_year_alfa_giulia(user_id)
+        elif response == "آلفارومئو میتو":
+            ask_production_year_alfa_mito(user_id)    
+        elif response == "اپل":
+            ask_opel_model(user_id)
+        else:
+            send_to_channel(user_id)
+    elif current_question == 1:
+        if user_state['brand'] == "آیودی":
+            user_state['model'] = response
+            if response == "Q5":
+                ask_production_year_q5(user_id)
+            elif response == "TT":
+                ask_tt_type(user_id)
+            else:
+                ask_production_year_other_audi(user_id)
+        elif user_state['brand'] == "آریسان":
+            user_state['model'] = response
+            if response == "وانت":
+                ask_arisan_van_type(user_id)
+            else:
+                ask_production_year_arisan_van2(user_id)
+        elif user_state['brand'] == "آریو":
+            user_state['model'] = response
+            if response == "اتوماتیک 1600cc":
+                ask_production_year_ario_automatic_1600cc(user_id)
+            elif response == "دنده ای 1500cc":
+                ask_production_year_ario_manual_1500cc(user_id)
+            else:
+                ask_production_year_ario_manual_1600cc(user_id)
+        elif user_state['brand'] == "اپل":
+            user_state['model'] = response
+            if response == "اپل آسترا سدان":
+                ask_opel_astra_sedan_model(user_id)
+            elif response == "اپل آسترا هاچبک":
+                ask_opel_astra_hatchback_model(user_id)
+            elif response == "اپل کورسا":
+                ask_opel_corsa_model(user_id)
+            
+    elif current_question == 2:
+        if user_state['brand'] == "آیودی" and user_state['model'] == "TT":
+            user_state['type'] = response
+            ask_production_year_tt(user_id)
+        elif user_state['brand'] == "آریسان" and user_state['model'] == "وانت":
+            user_state['type'] = response
+            ask_production_year_arisan_van(user_id)
+        elif user_state['brand'] == "اپل":
+            user_state['type'] = response
+            if user_state['model'] == "اپل آسترا سدان":
+                if response == "اپل آسترا سدان جدید":
+                    ask_production_year_opel_astra_sedan_new(user_id)
+                elif response == "اپل آسترا سدان قدیم":
+                    ask_production_year_opel_astra_sedan_old(user_id)
+                else:
+                    ask_production_year_opel_astra_sedan_other(user_id)
+            elif user_state['model'] == "اپل آسترا هاچبک":
+                if response == "اپل آسترا هاچبک 1400cc":
+                    ask_production_year_opel_astra_hatchback_1400cc(user_id)
+                elif response == "اپل آسترا هاچبک 1600cc":
+                    ask_production_year_opel_astra_hatchback_1600cc(user_id)
+                else:
+                    ask_production_year_opel_astra_hatchback_other(user_id)
+            elif user_state['model'] == "اپل کورسا":
+                if response == "اپل کورسا اتوماتیک":
+                    ask_production_year_opel_corsa_automatic(user_id)
+                elif response == "اپل کورسا دنده‌ای اتاق جدید":
+                    ask_production_year_opel_corsa_manual_new(user_id)
+                elif response == "اپل کورسا دنده‌ای اتاق قدیم":
+                    ask_production_year_opel_corsa_manual_old(user_id)
+                else:
+                    ask_production_year_opel_corsa_other(user_id)
+        else:
+            user_state['year'] = response
+            send_to_channel(user_id)
+    elif current_question == 3:
+        user_state['year'] = response
+        send_to_channel(user_id)
+    
+    user_state['current_question'] += 1
+
+# ایجاد کیبورد با گزینه‌های داده شده
+def create_keyboard(options):
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    for option in options:
+        markup.add(option)
+    return markup
+
+# ارسال پیام به کانال
+def send_to_channel(user_id):
+    user_state = user_data[user_id]
+    brand = user_state.get('brand', '')
+    model = user_state.get('model', '')
+    type_ = user_state.get('type', '')
+    year = user_state.get('year', '')
+
+    message = f"برند: {brand}\n"
+    if model:
+        message += f"مدل: {model}\n"
+    if type_:
+        message += f"تیپ: {type_}\n"
+    if year:
+        message += f"سال: {year}\n"
+
+    bot.send_message(group_chat_id, message)
+    del user_data[user_id]
+
+# شروع ربات
+bot.polling(none_stop=True)
