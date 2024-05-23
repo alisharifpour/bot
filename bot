@@ -7,13 +7,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 # توکن ربات خود را وارد کنید
-TOKEN = '6772508887:AAHvhQ44AMuW4gQUbvZ_fBfRHsQlON6sSB8'
+TOKEN = ''
 
 # ایجاد شی ربات
 bot = telebot.TeleBot(TOKEN)
 
 # آیدی گروه مورد نظر خود را وارد کنید
-group_chat_id = '-1002112168767'
+group_chat_id = ''
 
 # دسته‌بندی پیام‌ها بر اساس وضعیت
 user_data = {}
